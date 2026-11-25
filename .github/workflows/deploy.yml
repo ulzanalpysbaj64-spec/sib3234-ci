@@ -1,0 +1,26 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: sib3234
+  CONTAINER_NAME: sib3234site
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t $IMAGE_NAME:${{ github.sha }} .
+
+      - name: Deploy container
+        run: |
+          docker rm -f $CONTAINER_NAME || true
+          docker run -d --name $CONTAINER_NAME -p 8018:80 $IMAGE_NAME:${{ github.sha }}
+          docker ps
